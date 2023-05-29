@@ -11,10 +11,12 @@ const Signin = () => {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
+
     try {
       const { error } = await supabaseClient.auth.signInWithOtp({
         email,
       });
+
       if (error) {
         setError(error.msg);
       } else {
@@ -26,6 +28,7 @@ const Signin = () => {
       setIsLoading(false);
     }
   };
+
   const handleInput = (event) => {
     setEmail(event.target.value);
   };
@@ -35,11 +38,10 @@ const Signin = () => {
       <h1>Login!</h1>
       <form onSubmit={submitHandler}>
         <input type="email" name="email" onChange={handleInput} />
-        <button disabled={isLoading} type="submit">
-          Login
-        </button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
 };
+
 export default Signin;
