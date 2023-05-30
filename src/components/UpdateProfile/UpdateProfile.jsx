@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabaseClient } from "../../supabase-client.js";
 
-const Updateprofile = () => {
+const UpdateProfile = () => {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -10,37 +10,42 @@ const Updateprofile = () => {
   const submitHandler = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null);
+
     try {
-      const { error } = await supabaseClient.auth.update({
-        username,
-      });
-      console.log(username, "username");
+      const {
+        data: { user },
+      } = await supabaseClient.auth.getUser();
+
+      const { error } = await supabaseClient
+        .from("profiles")
+        .update({ username: username })
+        .eq("id", user.id);
+
       if (error) {
         setError(error.msg);
       } else {
         setIsSubmitted(true);
       }
     } catch (error) {
-      setError(error.msg);
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleInput = (event) => {
     setUsername(event.target.value);
   };
 
   return (
     <div>
-      <h1>Update Profile!</h1>
+      <h1>Completa il tuo profilo!</h1>
       <form onSubmit={submitHandler}>
-        <input type="text" name="username" onChange={handleInput} />
-        <button disabled={isLoading} type="submit">
-          Update
-        </button>
+        <input type="text" onChange={handleInput} />
+        <button type="submit">Invia</button>
       </form>
     </div>
   );
 };
-export default Updateprofile;
+
+export default UpdateProfile;

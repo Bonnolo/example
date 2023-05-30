@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "./supabase-client.js";
 import Signin from "./components/Signin/Signin.jsx";
-import Updateprofile from "./components/UpdateProfile/UpdateProfile.jsx";
 import "./App.css";
-//import updateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
+import UpdateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
+import TodoList from "./components/TodoList/TodoList.jsx";
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     supabaseClient.auth.getSession().then((data) => {
@@ -16,51 +17,49 @@ export default function App() {
 
   useEffect(() => {
     const getProfile = async () => {
+      // {
+      //   data {
+      //     user: {
+      //       id: "pollo",
+      //       token: '2asds'
+      //     }
+      //   }
+      // }
+      //const userData = await supabaseClient.auth.getUser();
+      // userData.data.user.id
+      // const { data } = await supabaseClient.auth.getUser();
+      // data.user.id
+
       const {
         data: { user },
       } = await supabaseClient.auth.getUser();
-      console.log(user);
+
       const { data } = await supabaseClient
         .from("profiles")
         .upsert({ id: user.id })
-        .select()
-        .then(() => {
-          //console.log("Profile created!");
-        });
-      console.log(data);
+        .select();
+
+      const usernameData = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id);
+
+      setUser(usernameData.data[0]);
+      console.log(usernameData);
     };
+
     getProfile();
   }, [session]);
 
-  useEffect(() => {
-    const insertUsername = async () => {
-      const {
-        data: { user },
-      } = await supabaseClient.auth.getUser();
-      console.log("true");
-      const { data } = await supabaseClient
-        .from("profiles")
-        .upsert({ id: user.id, username: user.username })
-        .select()
-        .then(() => {
-          console.log("Profile Updated!");
-        });
-      //console.log(data);
-    };
-    insertUsername();
-  }, [session]);
-  console.log(session);
-
   if (session) {
-    if (session.user && session.user.username) {
+    if (user && user.username) {
       return (
         <div>
-          <h1>Ciao {session.user.username}!</h1>
-          {/* <TodoList /> */}
+          <h1>Ciao {user.username}!</h1>
         </div>
       );
     } else {
-      return <Updateprofile></Updateprofile>;
+      return <UpdateProfile></UpdateProfile>;
     }
   } else {
     return <Signin></Signin>;

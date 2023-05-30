@@ -1,4 +1,10 @@
+import { useState } from "react";
+
 const TodoList = () => {
+  // const state = useState();
+  // const input = state[0];
+  // const setInput = state[1];
+  // const [document, { state }] = useSinglePrismicDocument("homepage");
   const [input, setInput] = useState("Fare la spesa");
   const [todos, setTodos] = useState([]);
 
@@ -19,29 +25,22 @@ const TodoList = () => {
       if (todo.id === id) {
         todo.completed = !todo.completed;
       }
+
       return todo;
     });
-    //false = !true
-    //true = !false
+
     setTodos(list);
   };
 
   return (
     <div>
-      <input
-        type="text"
-        onInput={(event) => {
-          setInput(event.target.value);
-        }}
-      />
-      <h1>Todo: {input}</h1>
-      <button
-        onClick={() => {
-          handleClick();
-        }}
-      >
-        Add todo
-      </button>
+      {/* example fetch component */}
+      {/* <FetchExample></FetchExample> */}
+      {/* example image from prismic */}
+      {/* {state === "loaded" && <img src={document.data.hero_image.url} alt="" />} */}
+      <input type="text" onInput={(e) => setInput(e.target.value)} />
+      <h1>TODO: {input}</h1>
+      <button onClick={handleClick}>Add todo</button>
       <ul>
         {todos.map((todo) => {
           return (
@@ -65,4 +64,5 @@ const TodoList = () => {
     </div>
   );
 };
+
 export default TodoList;
