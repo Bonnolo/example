@@ -3,11 +3,13 @@ import { supabaseClient } from "./supabase-client.js";
 import Signin from "./components/Signin/Signin.jsx";
 import "./App.css";
 import UpdateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
+import Signout from "./components/Signout/Signout.jsx";
 import TodoList from "./components/TodoList/TodoList.jsx";
 
 export default function App() {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
+  const [firstTime, setFirstTime] = useState(true);
 
   useEffect(() => {
     supabaseClient.auth.getSession().then((data) => {
@@ -39,23 +41,34 @@ export default function App() {
         .upsert({ id: user.id })
         .select();
 
-      const usernameData = await supabaseClient
+      const dataUsername = await supabaseClient
         .from("profiles")
-        .select("username")
+        .select("username, avatarurl, website, bio")
         .eq("id", user.id);
 
-      setUser(usernameData.data[0]);
-      console.log(usernameData);
+      setUser(dataUsername.data[0]);
+      console.log(dataUsername);
     };
-
-    getProfile();
+    if (firstTime) {
+      setFirstTime(false);
+    } else {
+      getProfile();
+    }
   }, [session]);
 
   if (session) {
     if (user && user.username) {
       return (
-        <div>
+        <div style={{ padding: 2 + "rem" }}>
           <h1>Ciao {user.username}!</h1>
+          <span>{user.avatarurl}</span>
+          <br />
+          <span>{user.website}</span>
+          <br />
+          <span>{user.bio}</span>
+          {/*           <form onSubmit={Signout}>
+            <button type="submit">LogOut</button>
+          </form> */}
         </div>
       );
     } else {
