@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabaseClient } from "../../supabase-client.js";
+import { get, set } from "react-hook-form";
 
 const TodoList = () => {
   // const state = useState();
@@ -8,22 +10,61 @@ const TodoList = () => {
   const [input, setInput] = useState("Fare la spesa");
   const [todos, setTodos] = useState([]);
 
-  const handleClick = () => {
-    const id = todos.length + 1;
-    setTodos((prev) => [
-      ...prev,
-      {
-        id: id,
-        task: input,
-        completed: false,
-      },
-    ]);
+  useEffect(() => {
+    const getTodos = async () => {
+      const {
+        data: { user },
+      } = await supabaseClient.auth.getUser();
+
+      const { data } = await supabaseClient
+        .from("todos")
+        .select()
+        .order("id", { ascending: false })
+        .eq("user_id", user?.id);
+
+      console.log(data);
+      setTodos(data);
+    };
+
+    getTodos();
+  }, []);
+
+  const addTodo = async () => {
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser();
+
+    const { data } = await supabaseClient
+      .from("todos")
+      .upsert({
+        user_id: user.id,
+        title: input,
+        isComplete: false,
+      })
+      .select();
+
+    setTodos((prev) => [...prev, ...data]);
   };
 
-  const markDone = (id) => {
+  const markDone = async (id, isComplete) => {
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser();
+
+    const { data } = await supabaseClient
+      .from("todos")
+      .update({
+        user_id: user.id,
+        isComplete: !isComplete,
+      })
+      .eq("id", id)
+      .select();
+
+    console.log(data);
+
     const list = todos.map((todo) => {
       if (todo.id === id) {
-        todo.completed = !todo.completed;
+        todo.isComplete = !isComplete;
       }
 
       return todo;
@@ -40,7 +81,7 @@ const TodoList = () => {
       {/* {state === "loaded" && <img src={document.data.hero_image.url} alt="" />} */}
       <input type="text" onInput={(e) => setInput(e.target.value)} />
       <h1>TODO: {input}</h1>
-      <button onClick={handleClick}>Add todo</button>
+      <button onClick={addTodo}>Add todo</button>
       <ul>
         {todos.map((todo) => {
           return (
@@ -48,15 +89,15 @@ const TodoList = () => {
               key={todo.id}
               style={{
                 listStyle: "none",
-                textDecoration: todo.completed ? "line-through" : "",
+                textDecoration: todo.isComplete ? "line-through" : "",
               }}
             >
               <input
                 type="checkbox"
-                defaultChecked={todo.completed}
-                onChange={() => markDone(todo.id)}
+                defaultChecked={todo.isComplete}
+                onChange={() => markDone(todo.id, todo.isComplete)}
               />
-              {todo.task}
+              {todo.title}
             </li>
           );
         })}

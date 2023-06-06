@@ -17,7 +17,7 @@ const UpdateProfile = () => {
   return (
     <div>
       <h1>Completa il tuo profilo</h1>
-      <form onSubmit={handleSubmit((data) => console.log(data))}>
+      <form onSubmit={handleSubmit(updateData)}>
         <input
           type="text"
           required

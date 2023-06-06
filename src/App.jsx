@@ -3,7 +3,7 @@ import { supabaseClient } from "./supabase-client.js";
 import Signin from "./components/Signin/Signin.jsx";
 import "./App.css";
 //import UpdateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
-import Signout from "./components/Signout/Signout.jsx";
+//import Signout from "./components/Signout/Signout.jsx";
 import TodoList from "./components/TodoList/TodoList.jsx";
 import UpdateProfile from "./components/RigoUpdate/RigoUpdate.jsx";
 
@@ -48,30 +48,29 @@ export default function App() {
         .eq("id", user.id);
 
       setUser(dataUsername.data[0]);
-      console.log(dataUsername);
+      //console.log(dataUsername);
     };
     getProfile();
   }, [session]);
 
-  if (session) {
-    if (user && user.username) {
-      return (
-        <div style={{ padding: 2 + "rem" }}>
-          <h1>Ciao {user.username}!</h1>
-          <span>{user.avatarurl}</span>
-          <br />
-          <span>{user.website}</span>
-          <br />
-          <span>{user.bio}</span>
-          {/*           <form onSubmit={Signout}>
-            <button type="submit">LogOut</button>
-          </form> */}
-        </div>
-      );
+  const signOut = async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      console.log(error);
     } else {
-      return <UpdateProfile></UpdateProfile>;
+      setSession(null);
     }
-  } else {
-    return <Signin></Signin>;
-  }
+  };
+
+  return (
+    <div>
+      <h1>Ciao {user?.username || "sconosciuto"}!</h1>
+      <p>{user?.bio}</p>
+      <p>{user?.website}</p>
+      <button onClick={signOut}>SIGNOUT</button>
+      {!session && <Signin />}
+      {session && user?.username && <TodoList />}
+      {session && !user?.username && <UpdateProfile />}
+    </div>
+  );
 }
