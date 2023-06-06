@@ -84,12 +84,7 @@ const UpdateProfile = () => {
           placeholder="Website"
           onChange={handleInput}
         />
-        <input
-          type="text"
-          name="Bio"
-          placeholder="Bio"
-          onChange={handleInput}
-        />
+        <textarea name="Bio" placeholder="Bio" onChange={handleInput} />
         <button type="submit" /* disabled={isLoading} */>Invia</button>
       </form>
     </div>

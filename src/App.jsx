@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { supabaseClient } from "./supabase-client.js";
 import Signin from "./components/Signin/Signin.jsx";
 import "./App.css";
-import UpdateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
+//import UpdateProfile from "./components/UpdateProfile/UpdateProfile.jsx";
 import Signout from "./components/Signout/Signout.jsx";
 import TodoList from "./components/TodoList/TodoList.jsx";
+import UpdateProfile from "./components/RigoUpdate/RigoUpdate.jsx";
 
 export default function App() {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
-  const [firstTime, setFirstTime] = useState(true);
 
   useEffect(() => {
     supabaseClient.auth.getSession().then((data) => {
@@ -18,6 +18,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!session) return;
     const getProfile = async () => {
       // {
       //   data {
@@ -49,11 +50,7 @@ export default function App() {
       setUser(dataUsername.data[0]);
       console.log(dataUsername);
     };
-    if (firstTime) {
-      setFirstTime(false);
-    } else {
-      getProfile();
-    }
+    getProfile();
   }, [session]);
 
   if (session) {
